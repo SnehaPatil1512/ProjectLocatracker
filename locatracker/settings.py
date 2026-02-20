@@ -30,16 +30,15 @@ DEBUG = False
 ALLOWED_HOSTS = ['https://projectlocatracker11.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.ngrok-free.app",
-    "https://*.ngrok.io",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
+    "https://your-app-name.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = False 
 USE_X_FORWARDED_HOST = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 # Application definition
