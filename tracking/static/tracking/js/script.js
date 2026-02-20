@@ -153,7 +153,6 @@ function createSocket() {
  
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const wsUrl = `${protocol}://${window.location.host}/ws/tracking/`;
-  
 
     showStatus("Connecting to server...", 'info');
     socket = new WebSocket(wsUrl);

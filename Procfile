@@ -1,1 +1,1 @@
-web: gunicorn locatracker.wsgi
+web: daphne -b 0.0.0.0 -p $PORT locatracker.asgi:application --proxy-headers
