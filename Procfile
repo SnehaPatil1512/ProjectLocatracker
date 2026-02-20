@@ -1,1 +1,1 @@
-web: daphne -b 0.0.0.0 -p $PORT locatracker.asgi:application --proxy-headers
+web: daphne -b 0.0.0.0 -p $PORT locatracker.asgi:application
