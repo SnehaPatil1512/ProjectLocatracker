@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -137,8 +138,11 @@ ASGI_APPLICATION = "locatracker.asgi.application"
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 STATICFILES_DIRS = [BASE_DIR / 'tracking' / 'static']  
 
 
@@ -150,9 +154,6 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
  
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'tracking/static'),
-]
 
 
 CHANNEL_LAYERS = {
