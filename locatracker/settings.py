@@ -27,10 +27,10 @@ SECRET_KEY = 'django-insecure-qg-_!b%9)+*7gd2trj#_b6%zqw8vujq&mvc741&e7n*(nft$mp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['https://projectlocatracker11.onrender.com']
+ALLOWED_HOSTS = ['projectlocatracker11.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://your-app-name.onrender.com"
+    "https://projectlocatracker11.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok
@@ -147,8 +147,6 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/tracking/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
  
 
