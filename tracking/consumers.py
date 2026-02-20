@@ -231,7 +231,7 @@ from channels.db import database_sync_to_async
 from .models import TrackingSession
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-
+from django.contrib.auth.models import User
 
 class TrackingConsumer(AsyncWebsocketConsumer):
 
