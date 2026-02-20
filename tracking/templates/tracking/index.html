@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#74ebd5">
+    <title>Location Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="{% static 'tracking/css/style.css' %}">
+</head>
+<body>
+
+<div class="app">
+
+    {% if user.is_authenticated %}
+    <div class="user-info">
+        <span>Welcome <strong>{{ user.username }}</strong> |</span>
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    </div>
+    {% endif %}
+
+    <h2>Location Tracker</h2>
+
+
+    <div id="status" style="min-height:24px;color:green;font-weight:bold;margin-bottom:8px;"></div>
+    <div id="map" style="height:500px;"></div>
+
+    <div class="controls">
+        <div class="mode-select">
+            <label for="modeSelect">Tracking Mode:</label>
+            <select id="modeSelect">
+                <option value="walk">Walking</option>
+                <option value="bike" selected>Bike</option>
+                <option value="car">Car</option>
+            </select>
+        </div><br>
+
+        <div class="buttons">
+            <button id="startBtn" class="start">Start Tracking</button>
+            <button id="stopBtn" class="stop">Stop Tracking</button>
+        </div>
+
+        <div class="coords">
+            <div class="coord-box">
+                <span>Latitude</span>
+                <p id="lat">-</p>
+            </div>
+            <div class="coord-box">
+                <span>Longitude</span>
+                <p id="lng">-</p>
+            </div>
+            <div class="coord-box">
+                <span>GPS Accuracy</span>
+                <p id="accuracy">-</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{% static 'tracking/js/script.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map { height: 600px; width: 100%; }
+        #info { margin-top: 10px; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h2>Tracking Map - {{ session.user.username }}</h2>
+<div id="map"></div>
+<div id="info">Click on the route to see distance and time at that point</div>
+
+<script>
+let locations = {{ locations|safe }};
+let sessionId = {{ session.id }};
+let passedStartLat = {{ start_lat|default:"null" }};
+let passedStartLng = {{ start_lng|default:"null" }};
+console.log("Locations:", locations);
+
+let mapCenter = [28.6139, 77.2090];
+let mapZoom = 15;
+let map;
+let startLat, startLng;
+let routeLine = null;
+let markersGroup = L.featureGroup();
+
+function initializeMap() {
+    // Determine start coordinates and map center
+    if (passedStartLat !== null && passedStartLng !== null) {
+        startLat = passedStartLat;
+        startLng = passedStartLng;
+        mapCenter = [startLat, startLng];
+    } else if (locations && locations.length > 0) {
+        startLat = locations[0].lat;
+        startLng = locations[0].lng;
+        mapCenter = [startLat, startLng];
+    } else {
+        startLat = null;
+        startLng = null;
+    }
+
+    // Always render the map
+    if (!map) {
+        map = L.map('map').setView(mapCenter, mapZoom);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+        markersGroup.addTo(map);
+    }
+
+    // Display start coordinates
+    if (startLat !== null && startLng !== null) {
+        document.getElementById('info').innerHTML = `<strong>Started at:</strong> Lat: ${startLat.toFixed(4)}, Lng: ${startLng.toFixed(4)}<br/>Click on the route to see distance and time at that point`;
+    } else {
+        document.getElementById('info').innerHTML = `<strong>Start Location:</strong> Not available`;
+    }
+}
+
+function updateMapRoute() {
+    // Remove old route and markers
+    if (routeLine) {
+        map.removeLayer(routeLine);
+    }
+    markersGroup.clearLayers();
+
+    // Show start location marker
+    if (startLat !== null && startLng !== null) {
+        L.marker([startLat, startLng], { 
+            title: "Started at", 
+            icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32, 32]}) 
+        }).addTo(markersGroup).bindPopup(`Started at: ${startLat.toFixed(4)}, ${startLng.toFixed(4)}`);
+    }
+
+    // If locations exist, draw the route
+    if (locations && locations.length > 0) {
+        // Convert locations to Leaflet LatLng objects
+        let latlngs = locations.map(p => L.latLng(p.lat, p.lng));
+
+        routeLine = L.polyline(latlngs, { color: 'blue', weight: 4, opacity: 0.8 });
+        routeLine.addTo(map);
+
+        // Start and End markers
+        L.marker(latlngs[0], { title: "Started Here", icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32, 32]}) })
+          .addTo(markersGroup).bindPopup("Started Here");
+
+        L.marker(latlngs[latlngs.length-1], { title: "Ended Here", icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', iconSize: [32, 32]}) })
+          .addTo(markersGroup).bindPopup("Ended Here");
+
+        if (latlngs.length > 0) {
+            map.fitBounds(routeLine.getBounds());
+        }
+
+        // Distance and Time calculation
+        function calculateDistanceUpToIndex(latlngs, index) {
+            let total = 0;
+            for (let i = 1; i <= index; i++) {
+                total += latlngs[i-1].distanceTo(latlngs[i]);
+            }
+            return total / 1000; // km
+        }
+
+        function calculateTimeUpToIndex(locations, index) {
+            let start = new Date(locations[0].time);
+            let current = new Date(locations[index].time);
+            return (current - start) / 1000; 
+        }
+
+        function nearestLatLngIndex(latlngs, clickLatLng) {
+            let minDist = Infinity;
+            let nearestIndex = 0;
+            latlngs.forEach((point, i) => {
+                let d = point.distanceTo(clickLatLng);
+                if (d < minDist) {
+                    minDist = d;
+                    nearestIndex = i;
+                }
+            });
+            return nearestIndex;
+        }
+
+        // Click handler on route
+        routeLine.on('click', function(e) {
+            let clickLatLng = e.latlng;
+            let index = nearestLatLngIndex(latlngs, clickLatLng);
+
+            let totalDistance = calculateDistanceUpToIndex(latlngs, index).toFixed(2); // km
+            let totalTimeSec = calculateTimeUpToIndex(locations, index);
+            let hours = Math.floor(totalTimeSec / 3600);
+            let minutes = Math.floor((totalTimeSec % 3600) / 60);
+            let seconds = Math.floor(totalTimeSec % 60);
+
+            let timeStr = `${hours}h ${minutes}m ${seconds}s`;
+
+            document.getElementById('info').innerHTML = `<strong>Started at:</strong> Lat: ${startLat.toFixed(4)}, Lng: ${startLng.toFixed(4)}<br/>Distance up to clicked point: ${totalDistance} km<br/>Time elapsed: ${timeStr}`;
+        });
+    }
+}
+
+// Initialize map on page load
+initializeMap();
+updateMapRoute();
+
+// Auto-refresh every 3 seconds
+setInterval(function() {
+    fetch(`/session-map/${sessionId}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .catch(error => console.log('Fetching updated data...', error))
+    .then(data => {
+        if (data && data.locations) {
+            locations = data.locations;
+            if (data.start_lat !== null && data.start_lng !== null) {
+                startLat = data.start_lat;
+                startLng = data.start_lng;
+            }
+            updateMapRoute();
+            console.log('Updated with ' + locations.length + ' locations');
+        }
+    })
+    .catch(error => {});
+}, 3000);
+</script>
+</body>
+</html>
