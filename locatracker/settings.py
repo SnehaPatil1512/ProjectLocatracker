@@ -30,7 +30,7 @@ DEBUG = False
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "projectlocatracker111.onrender.com").split(",")
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://projectlocatracker11.onrender.com"
+    "https://projectlocatracker111.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok
