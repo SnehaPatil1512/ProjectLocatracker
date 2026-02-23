@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-qg-_!b%9)+*7gd2trj#_b6%zqw8vujq&mvc741&e7n*(nft$mp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "projectlocatracker11.onrender.com").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "projectlocatracker111.onrender.com").split(",")
 
 CSRF_TRUSTED_ORIGINS = [
     "https://projectlocatracker11.onrender.com"
