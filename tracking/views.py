@@ -182,6 +182,7 @@ def session_map(request, session_id):
         "start_lat": start_lat,
         "start_lng": start_lng
     })
+    
 @csrf_exempt
 def logout_on_tab_close(request):
     if request.user.is_authenticated and request.user.is_staff:

@@ -45,7 +45,7 @@ function initializeMap() {
         startLng = null;
     }
 
-    // Always render the map
+
     if (!map) {
         map = L.map('map').setView(mapCenter, mapZoom);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -54,7 +54,6 @@ function initializeMap() {
         markersGroup.addTo(map);
     }
 
-    // Display start coordinates
     if (startLat !== null && startLng !== null) {
         document.getElementById('info').innerHTML = `<strong>Started at:</strong> Lat: ${startLat.toFixed(4)}, Lng: ${startLng.toFixed(4)}<br/>Click on the route to see distance and time at that point`;
     } else {
@@ -63,13 +62,11 @@ function initializeMap() {
 }
 
 function updateMapRoute() {
-    // Remove old route and markers
     if (routeLine) {
         map.removeLayer(routeLine);
     }
     markersGroup.clearLayers();
 
-    // Show start location marker
     if (startLat !== null && startLng !== null) {
         L.marker([startLat, startLng], { 
             title: "Started at", 
@@ -77,15 +74,12 @@ function updateMapRoute() {
         }).addTo(markersGroup).bindPopup(`Started at: ${startLat.toFixed(4)}, ${startLng.toFixed(4)}`);
     }
 
-    // If locations exist, draw the route
     if (locations && locations.length > 0) {
-        // Convert locations to Leaflet LatLng objects
         let latlngs = locations.map(p => L.latLng(p.lat, p.lng));
 
         routeLine = L.polyline(latlngs, { color: 'blue', weight: 4, opacity: 0.8 });
         routeLine.addTo(map);
 
-        // Start and End markers
         L.marker(latlngs[0], { title: "Started Here", icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32, 32]}) })
           .addTo(markersGroup).bindPopup("Started Here");
 
@@ -96,13 +90,12 @@ function updateMapRoute() {
             map.fitBounds(routeLine.getBounds());
         }
 
-        // Distance and Time calculation
         function calculateDistanceUpToIndex(latlngs, index) {
             let total = 0;
             for (let i = 1; i <= index; i++) {
                 total += latlngs[i-1].distanceTo(latlngs[i]);
             }
-            return total / 1000; // km
+            return total / 1000; 
         }
 
         function calculateTimeUpToIndex(locations, index) {
@@ -148,7 +141,7 @@ updateMapRoute();
 
 // Auto-refresh every 3 seconds
 setInterval(function() {
-    fetch(`/session-map/${sessionId}/`, {
+    fetch(`/tracking/session-map/${sessionId}/`, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'

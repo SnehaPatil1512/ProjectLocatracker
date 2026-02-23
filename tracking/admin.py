@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from .models import TrackingSession
@@ -46,11 +47,10 @@ class TrackingSessionAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.exclude(user__is_superuser=True)
 
+
     def view_map(self, obj):
-        return format_html(
-            '<a href="/session-map/{0}/" target="_blank">View Map</a>',
-            obj.id
-        )
+        url = reverse("session_map", args=[obj.id])
+        return format_html('<a href="{}" target="_blank">View Map</a>', url)
     view_map.short_description = "Tracked Path"
     
     def has_add_permission(self, request):
