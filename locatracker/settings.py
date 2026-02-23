@@ -34,7 +34,8 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://projectlocatracker111.onrender.com"
+    "https://projectlocatracker111.onrender.com",
+    "http://projectlocatracker111.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok

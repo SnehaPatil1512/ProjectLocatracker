@@ -359,7 +359,7 @@ startBtn.onclick = async () => {
       headers: {
         "X-CSRFToken": csrfToken
       },
-      credentials: "same-origin"
+      credentials: "include"
     });
 
     if (!res.ok) {

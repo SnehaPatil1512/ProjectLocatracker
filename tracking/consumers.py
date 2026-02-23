@@ -236,6 +236,7 @@ from django.contrib.auth.models import User
 class TrackingConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
+        print("WS USER:", self.scope["user"])
         user = self.scope["user"]
         if not user.is_authenticated:
             await self.close()
@@ -246,6 +247,7 @@ class TrackingConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         print("WebSocket Closed")
+
 
 
     def parse_timestamp(self, ts):
