@@ -34,8 +34,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://projectlocatracker111.onrender.com",
-    "http://projectlocatracker111.onrender.com"
+    "https://projectlocatracker111.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok
@@ -45,8 +44,8 @@ USE_X_FORWARDED_HOST = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
 
 
 # Application definition
