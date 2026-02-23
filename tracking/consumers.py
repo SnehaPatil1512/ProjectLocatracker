@@ -247,9 +247,6 @@ class TrackingConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         print("WebSocket Closed")
 
-    # ---------------------------------------------------
-    # TIMESTAMP PARSER
-    # ---------------------------------------------------
 
     def parse_timestamp(self, ts):
         if not ts:
@@ -265,9 +262,6 @@ class TrackingConsumer(AsyncWebsocketConsumer):
 
         return parsed
 
-    # ---------------------------------------------------
-    # RECEIVE
-    # ---------------------------------------------------
 
     async def receive(self, text_data):
         try:
@@ -292,9 +286,6 @@ class TrackingConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print("WebSocket receive error:", e)
 
-    # ---------------------------------------------------
-    # DB HELPERS
-    # ---------------------------------------------------
 
     @database_sync_to_async
     def get_session(self, session_id):
@@ -306,9 +297,7 @@ class TrackingConsumer(AsyncWebsocketConsumer):
         except TrackingSession.DoesNotExist:
             return None
 
-    # ---------------------------------------------------
-    # HAVERSINE
-    # ---------------------------------------------------
+
 
     def haversine(self, lat1, lng1, lat2, lng2):
         R = 6371000  # meters
@@ -329,9 +318,6 @@ class TrackingConsumer(AsyncWebsocketConsumer):
 
         return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    # ---------------------------------------------------
-    # CORE LOCATION PROCESSOR (Single Source of Truth)
-    # ---------------------------------------------------
 
     def process_point(self, session, lat, lng, mode="bike", timestamp=None):
 
@@ -381,11 +367,9 @@ class TrackingConsumer(AsyncWebsocketConsumer):
             if time_increment > 300:
                 time_increment = 60
 
-        # Update totals
         session.total_distance += distance_increment
         session.total_time += time_increment
 
-        # Append location
         locations = session.locations or []
         locations.append({
             "lat": lat,
@@ -397,16 +381,12 @@ class TrackingConsumer(AsyncWebsocketConsumer):
         })
         session.locations = locations
 
-        # Update last state
         session.last_lat = lat
         session.last_lng = lng
         session.last_timestamp = timestamp
 
         return True
 
-    # ---------------------------------------------------
-    # SINGLE SAVE
-    # ---------------------------------------------------
 
     @database_sync_to_async
     def save_location(self, session, lat, lng, mode="bike", timestamp=None):
@@ -417,9 +397,6 @@ class TrackingConsumer(AsyncWebsocketConsumer):
         if updated:
             session.save()
 
-    # ---------------------------------------------------
-    # BATCH SAVE (Optimized)
-    # ---------------------------------------------------
 
     @database_sync_to_async
     def save_location_batch(self, session, points):

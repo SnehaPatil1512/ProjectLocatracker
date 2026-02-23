@@ -4,24 +4,93 @@
 <head>
     <title>Session Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <style>
-        #map { height: 600px; width: 100%; }
-        #info { margin-top: 10px; font-size: 18px; font-weight: bold; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            color: white;
+            padding: 15px 25px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .info-card {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+
+        .btn {
+            background: white;
+            color: #4e73df;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #e2e6f5;
+        }
+
+        @media (max-width: 768px) {
+            #map {
+                height: 450px;
+            }
+        }
     </style>
 </head>
 <body>
-<h2>Tracking Map - {{ session.user.username }}</h2>
-<div id="map"></div>
-<div id="info">Click on the route to see distance and time at that point</div>
+
+<div class="header">
+    Tracking Session - {{ session.user.username }}
+    <a href="{% url 'home' %}" class="btn">Back to Home</a>
+</div>
+
+<div class="container">
+    <div id="info" class="info-card">
+        Click on the route to see distance and time at that point
+    </div>
+
+    <div id="map"></div>
+</div>
 
 <script>
 let locations = {{ locations|safe }};
 let sessionId = {{ session.id }};
 let passedStartLat = {{ start_lat|default:"null" }};
 let passedStartLng = {{ start_lng|default:"null" }};
-console.log("Locations:", locations);
 
 let mapCenter = [28.6139, 77.2090];
 let mapZoom = 15;
@@ -31,7 +100,6 @@ let routeLine = null;
 let markersGroup = L.featureGroup();
 
 function initializeMap() {
-    // Determine start coordinates and map center
     if (passedStartLat !== null && passedStartLng !== null) {
         startLat = passedStartLat;
         startLng = passedStartLng;
@@ -45,7 +113,6 @@ function initializeMap() {
         startLng = null;
     }
 
-
     if (!map) {
         map = L.map('map').setView(mapCenter, mapZoom);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,113 +122,78 @@ function initializeMap() {
     }
 
     if (startLat !== null && startLng !== null) {
-        document.getElementById('info').innerHTML = `<strong>Started at:</strong> Lat: ${startLat.toFixed(4)}, Lng: ${startLng.toFixed(4)}<br/>Click on the route to see distance and time at that point`;
+        document.getElementById('info').innerHTML =
+            `<strong>Started at:</strong> ${startLat.toFixed(4)}, ${startLng.toFixed(4)}<br/>Click route for details`;
     } else {
-        document.getElementById('info').innerHTML = `<strong>Start Location:</strong> Not available`;
+        document.getElementById('info').innerHTML =
+            `<strong>Start Location:</strong> Not available`;
     }
 }
 
 function updateMapRoute() {
-    if (routeLine) {
-        map.removeLayer(routeLine);
-    }
+    if (routeLine) map.removeLayer(routeLine);
     markersGroup.clearLayers();
-
-    if (startLat !== null && startLng !== null) {
-        L.marker([startLat, startLng], { 
-            title: "Started at", 
-            icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32, 32]}) 
-        }).addTo(markersGroup).bindPopup(`Started at: ${startLat.toFixed(4)}, ${startLng.toFixed(4)}`);
-    }
 
     if (locations && locations.length > 0) {
         let latlngs = locations.map(p => L.latLng(p.lat, p.lng));
 
-        routeLine = L.polyline(latlngs, { color: 'blue', weight: 4, opacity: 0.8 });
+        routeLine = L.polyline(latlngs, { color: '#4e73df', weight: 4 });
         routeLine.addTo(map);
 
-        L.marker(latlngs[0], { title: "Started Here", icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32, 32]}) })
-          .addTo(markersGroup).bindPopup("Started Here");
+        L.marker(latlngs[0]).addTo(markersGroup).bindPopup("Start");
+        L.marker(latlngs[latlngs.length-1]).addTo(markersGroup).bindPopup("End");
 
-        L.marker(latlngs[latlngs.length-1], { title: "Ended Here", icon: L.icon({iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', iconSize: [32, 32]}) })
-          .addTo(markersGroup).bindPopup("Ended Here");
+        map.fitBounds(routeLine.getBounds());
 
-        if (latlngs.length > 0) {
-            map.fitBounds(routeLine.getBounds());
-        }
+        routeLine.on('click', function(e) {
+            let minDist = Infinity, nearestIndex = 0;
 
-        function calculateDistanceUpToIndex(latlngs, index) {
-            let total = 0;
-            for (let i = 1; i <= index; i++) {
-                total += latlngs[i-1].distanceTo(latlngs[i]);
-            }
-            return total / 1000; 
-        }
-
-        function calculateTimeUpToIndex(locations, index) {
-            let start = new Date(locations[0].time);
-            let current = new Date(locations[index].time);
-            return (current - start) / 1000; 
-        }
-
-        function nearestLatLngIndex(latlngs, clickLatLng) {
-            let minDist = Infinity;
-            let nearestIndex = 0;
             latlngs.forEach((point, i) => {
-                let d = point.distanceTo(clickLatLng);
+                let d = point.distanceTo(e.latlng);
                 if (d < minDist) {
                     minDist = d;
                     nearestIndex = i;
                 }
             });
-            return nearestIndex;
-        }
 
-        // Click handler on route
-        routeLine.on('click', function(e) {
-            let clickLatLng = e.latlng;
-            let index = nearestLatLngIndex(latlngs, clickLatLng);
+            let totalDistance = 0;
+            for (let i = 1; i <= nearestIndex; i++) {
+                totalDistance += latlngs[i-1].distanceTo(latlngs[i]);
+            }
 
-            let totalDistance = calculateDistanceUpToIndex(latlngs, index).toFixed(2); // km
-            let totalTimeSec = calculateTimeUpToIndex(locations, index);
+            let startTime = new Date(locations[0].time);
+            let currentTime = new Date(locations[nearestIndex].time);
+            let totalTimeSec = (currentTime - startTime) / 1000;
+
             let hours = Math.floor(totalTimeSec / 3600);
             let minutes = Math.floor((totalTimeSec % 3600) / 60);
             let seconds = Math.floor(totalTimeSec % 60);
 
-            let timeStr = `${hours}h ${minutes}m ${seconds}s`;
-
-            document.getElementById('info').innerHTML = `<strong>Started at:</strong> Lat: ${startLat.toFixed(4)}, Lng: ${startLng.toFixed(4)}<br/>Distance up to clicked point: ${totalDistance} km<br/>Time elapsed: ${timeStr}`;
+            document.getElementById('info').innerHTML =
+                `<strong>Distance:</strong> ${(totalDistance/1000).toFixed(2)} km<br/>
+                 <strong>Time Elapsed:</strong> ${hours}h ${minutes}m ${seconds}s`;
         });
     }
 }
 
-// Initialize map on page load
 initializeMap();
 updateMapRoute();
 
-// Auto-refresh every 3 seconds
 setInterval(function() {
     fetch(`/tracking/session-map/${sessionId}/`, {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(response => response.json())
-    .catch(error => console.log('Fetching updated data...', error))
     .then(data => {
         if (data && data.locations) {
             locations = data.locations;
-            if (data.start_lat !== null && data.start_lng !== null) {
-                startLat = data.start_lat;
-                startLng = data.start_lng;
-            }
             updateMapRoute();
-            console.log('Updated with ' + locations.length + ' locations');
         }
     })
-    .catch(error => {});
+    .catch(() => {});
 }, 3000);
+
 </script>
+
 </body>
 </html>
