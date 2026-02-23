@@ -20,6 +20,8 @@ let locationBuffer = [];
 let offlineBuffer = [];
 let lastSentTime = 0;
 let isOnline = navigator.onLine;
+let reconnectAttempts = 0;
+const MAX_RECONNECT = 5;
 
 const MAX_BUFFER_SIZE = 10;
 
@@ -165,6 +167,7 @@ function createSocket() {
 
     socket.onopen = () => {
         clearTimeout(connectionTimeout);
+        reconnectAttempts = 0;
         showStatus("WebSocket Connected", 'info', 2000);
         if (offlineBuffer.length > 0) {
             socket.send(JSON.stringify({
@@ -184,10 +187,15 @@ function createSocket() {
 
     socket.onclose = (event) => {
       showStatus("WebSocket Closed: " + event.reason, 'warn', 8000);
-      if (event.code !== 1000 && isTracking) {
-        showStatus("Attempting to reconnect in 3 seconds...", 'warn', 3000);
+
+      if (event.code !== 1000 && isTracking && reconnectAttempts < MAX_RECONNECT) {
+        reconnectAttempts++;
+        showStatus(`Reconnecting (${reconnectAttempts}/5)...`, 'warn', 3000);
+
         setTimeout(() => {
-          createSocket().catch(err => showStatus("Reconnection failed: " + err, 'error', 8000));
+          createSocket().catch(err =>
+            showStatus("Reconnection failed: " + err, 'error', 8000)
+          );
         }, 3000);
       }
     };
@@ -416,7 +424,7 @@ startBtn.onclick = async () => {
 
         showStatus(errorMessage, 'error', 8000);
 
-       stopBtn.click();
+        console.warn("Temporary GPS error, keeping session alive");
       },
       {
         enableHighAccuracy: true,
