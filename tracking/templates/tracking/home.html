@@ -9,8 +9,7 @@
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg, #4e73df, #1cc88a);
-            color: white;
+            background-color: #f4f6f9;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,67 +17,62 @@
             text-align: center;
         }
 
-        .home-container {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 50px;
-            border-radius: 15px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 500px;
+            max-width: 450px;
         }
 
         h1 {
-            margin-bottom: 15px;
-            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
         }
 
         p {
-            margin-bottom: 30px;
-            font-size: 16px;
-            opacity: 0.9;
+            margin-bottom: 25px;
+            color: #666;
         }
 
         .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            margin: 5px;
-            transition: 0.3s;
-            text-decoration: none;
             display: inline-block;
+            padding: 10px 18px;
+            margin: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
         .btn-primary {
-            background-color: #ffffff;
-            color: #4e73df;
-            font-weight: bold;
-        }
-
-        .btn-primary:hover {
-            background-color: #f8f9fc;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid white;
+            background-color: #4e73df;
             color: white;
         }
 
-        .btn-outline:hover {
-            background-color: white;
+        .btn-primary:hover {
+            background-color: #2e59d9;
+        }
+
+        .btn-outline {
+            border: 2px solid #4e73df;
             color: #4e73df;
+        }
+
+        .btn-outline:hover {
+            background-color: #4e73df;
+            color: white;
         }
     </style>
 </head>
 
 <body>
 
-<div class="home-container">
-    <h1>Welcome to Location Tracker</h1>
-    <p>Track your real-time location with speed, accuracy, and simplicity.</p>
+<div class="container">
+    <h1>Location Tracker</h1>
+    <p>Track your real-time location easily.</p>
 
     {% if user.is_authenticated %}
         <a href="{% url 'tracking_page' %}" class="btn btn-primary">
