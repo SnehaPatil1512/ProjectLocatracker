@@ -2,68 +2,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home - Location Tracker</title>
+    <title>Location Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #f4f6f9;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
         }
 
         .container {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px 25px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
             margin-bottom: 10px;
-            color: #333;
+            font-size: 26px;
         }
 
         p {
-            margin-bottom: 25px;
-            color: #666;
+            margin-bottom: 30px;
+            font-size: 15px;
+            opacity: 0.9;
         }
 
         .btn {
-            display: inline-block;
-            padding: 10px 18px;
-            margin: 5px;
-            border-radius: 5px;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 10px;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             transition: 0.3s;
         }
 
         .btn-primary {
-            background-color: #4e73df;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2e59d9;
-        }
-
-        .btn-outline {
-            border: 2px solid #4e73df;
+            background-color: white;
             color: #4e73df;
         }
 
-        .btn-outline:hover {
-            background-color: #4e73df;
+        .btn-primary:hover {
+            background-color: #f2f2f2;
+        }
+
+        .btn-outline {
+            border: 2px solid white;
             color: white;
+        }
+
+        .btn-outline:hover {
+            background-color: white;
+            color: #4e73df;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
@@ -72,20 +99,26 @@
 
 <div class="container">
     <h1>Location Tracker</h1>
-    <p>Track your real-time location easily.</p>
+    <p>Track your real-time location and view your past journeys anytime.</p>
 
     {% if user.is_authenticated %}
         <a href="{% url 'tracking_page' %}" class="btn btn-primary">
             Go to Tracker
         </a>
+
+        <a href="{% url 'my_tracks' %}" class="btn btn-outline">
+            View My Past Tracks
+        </a>
     {% else %}
         <a href="{% url 'login' %}" class="btn btn-primary">
             Login
         </a>
+
         <a href="{% url 'register' %}" class="btn btn-outline">
             Register
         </a>
     {% endif %}
+
 </div>
 
 </body>

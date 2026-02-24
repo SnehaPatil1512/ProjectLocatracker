@@ -183,6 +183,22 @@ def session_map(request, session_id):
         "start_lng": start_lng
     })
     
+
+@login_required
+def my_tracks(request):
+    sessions = TrackingSession.objects.filter(
+        user=request.user,
+        ended_at__isnull=False
+    ).order_by('-started_at')
+
+    for s in sessions:
+        s.distance_km = round(s.total_distance / 1000, 2)
+        s.time_hours = round(s.total_time / 3600, 2)
+
+    return render(request, "tracking/my_tracks.html", {
+        "sessions": sessions
+    })
+    
 @csrf_exempt
 def logout_on_tab_close(request):
     if request.user.is_authenticated and request.user.is_staff:

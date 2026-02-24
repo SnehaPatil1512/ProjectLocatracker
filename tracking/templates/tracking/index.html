@@ -15,12 +15,18 @@
 <div class="app">
 
     {% if user.is_authenticated %}
-    <div class="user-info">
-        <span>Welcome <strong>{{ user.username }}</strong> |</span>
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
+    <div class="top-bar">
+        <div class="left">
+            {{ user.username }}
+        </div>
+        <div class="right">
+            <a href="{% url 'my_tracks' %}" class="nav-link">My Tracks</a>
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
     </div>
     {% endif %}
 

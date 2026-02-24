@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Past Tracks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .date {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        .view-btn {
+            display: block;
+            text-align: center;
+            padding: 8px;
+            background: #4e73df;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .view-btn:hover {
+            background: #2e59d9;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back a {
+            display: inline-block;
+            padding: 10px 16px;
+            background: white;
+            color: #4e73df;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back a:hover {
+            background: #f2f2f2;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 480px) {
+            .stats {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>My Past Tracks</h2>
+
+    {% if sessions %}
+        {% for session in sessions %}
+        <div class="card">
+            <div class="date">
+                {{ session.started_at|date:"M d, Y • H:i" }}
+            </div>
+
+            <div class="stats">
+                <div>{{ session.distance_km }} km</div>
+                <div>{{ session.time_hours }} hrs</div>
+            </div>
+
+            <a href="{% url 'session_map' session.id %}" class="view-btn">
+                View Track
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center; color:white;">
+            No past tracks found.
+        </p>
+    {% endif %}
+
+    <div class="back">
+        <a href="{% url 'tracking_page' %}"> Back to Tracking</a>
+    </div>
+</div>
+
+</body>
+</html>
