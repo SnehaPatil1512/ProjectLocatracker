@@ -29,13 +29,13 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "projectlocatracker111.onrender.com",
+    "projectlocatracker111.onrender.com", 
     "localhost",
     "127.0.0.1",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://projectlocatracker111.onrender.com",
+    "https://projectlocatracker111.onrender.com"
 ]
 
 # HTTPS and proxy settings for ngrok
