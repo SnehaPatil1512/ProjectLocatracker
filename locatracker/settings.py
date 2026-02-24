@@ -52,7 +52,6 @@ CSRF_COOKIE_SAMESITE = "Lax"
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -158,12 +157,15 @@ LOGIN_REDIRECT_URL = '/tracking/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
- 
+
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL")],
+        },
+    },
 }
 
 ORS_API_KEY = os.getenv('ORS_API_KEY', "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImQ5MDQ0MzIwZTY4NTQxNWFiMWUxM2QwYWI3ZjQ1NTMzIiwiaCI6Im11cm11cjY0In0=")

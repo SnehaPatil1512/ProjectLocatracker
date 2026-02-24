@@ -11,7 +11,7 @@ services:
       python manage.py migrate
       python manage.py collectstatic --noinput
 
-    startCommand: daphne -b 0.0.0.0 -p $PORT locatracker.asgi:application
+    startCommand: gunicorn locatracker.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:$PORT
 
     envVars:
       - key: DJANGO_SETTINGS_MODULE
@@ -25,6 +25,11 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: locatracker-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: locatracker-redis
           property: connectionString
 
     autoDeploy: true
